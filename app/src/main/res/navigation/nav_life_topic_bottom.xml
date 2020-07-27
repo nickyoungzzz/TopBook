@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/tab_main_bottom_article"
+    tools:ignore="UnusedNavigation">
+
+    <fragment
+        android:id="@+id/tab_main_bottom_article"
+        android:name="com.nick.topbook.module.article.ui.ArticleCategoryFragment"
+        tools:layout="@layout/fragment_article" />
+
+    <fragment
+        android:id="@+id/tab_main_bottom_life"
+        android:name="com.nick.topbook.module.life.ui.LifeFragment"
+        tools:layout="@layout/fragment_life" />
+
+    <fragment
+        android:id="@+id/tab_main_bottom_market"
+        android:name="com.nick.topbook.module.market.ui.MarketFragment"
+        tools:layout="@layout/fragment_market" />
+
+    <fragment
+        android:id="@+id/tab_main_bottom_plan"
+        android:name="com.nick.topbook.module.plan.ui.PlanFragment"
+        tools:layout="@layout/fragment_plan" />
+</navigation>
