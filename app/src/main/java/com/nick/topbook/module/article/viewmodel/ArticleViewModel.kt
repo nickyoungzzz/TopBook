@@ -1,91 +1,63 @@
 package com.nick.topbook.module.article.viewmodel
 
-import android.annotation.SuppressLint
-import androidx.lifecycle.*
-import androidx.paging.DataSource
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
-import androidx.paging.PositionalDataSource
-import com.nick.topbook.data.*
+import androidx.lifecycle.ViewModel
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import com.nick.topbook.data.Resource
+import com.nick.topbook.data.errorOrNull
+import com.nick.topbook.data.getOrNull
 import com.nick.topbook.module.article.model.Article
+import com.nick.topbook.module.article.model.ArticleCategoryResult
 import com.nick.topbook.module.article.model.ArticleRepository
-import com.nick.topbook.module.article.model.Category
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 
 class ArticleViewModel : ViewModel() {
 
-	private val articleRepository = ArticleRepository()
+	private val articleRepository by lazy { ArticleRepository() }
 
-	private val articleListLiveData: MutableLiveData<Resource> by lazy {
-		MutableLiveData<Resource>()
-	}
-
-	private val articleCategoryLiveData: MutableLiveData<Resource> by lazy {
-		MutableLiveData<Resource>()
-	}
-
-	private val articleDetailLiveData: MutableLiveData<Resource> by lazy {
-		MutableLiveData<Resource>()
-	}
-
-	@SuppressLint("RestrictedApi") fun getArticleCategory(start: Int, limit: Int): LiveData<Resource> {
-		var error: ApiError? = null
-		val liveData = object : ComputableLiveData<List<Category>>() {
-			override fun compute(): List<Category> {
+	fun getArticleCategory(start: Int, limit: Int): Flow<Resource<ArticleCategoryResult>> {
+		val unknownError = Throwable("unknownError")
+		return flow {
+			withContext(Dispatchers.IO) {
 				val apiErrorResult = articleRepository.getArticleCategory(start, limit)
-				error = apiErrorResult.err
-				return apiErrorResult.res?.categoryData?.categories ?: emptyList()
+				apiErrorResult.getOrNull()?.let {
+					emit(it)
+				}
+				apiErrorResult.errorOrNull()?.let {
+					emit(it)
+				}
 			}
-		}.liveData
-		return Transformations.switchMap(liveData) {
-			val respSuccess: RespSuccess<List<Category>>? = it?.let { it1 -> if (it1.isEmpty() && error != null) null else RespSuccess(it1) }
-			val respError: RespError? = error?.let { it1 -> RespError((it1)) }
-			return@switchMap articleCategoryLiveData.apply { setResource(respSuccess, respError) }
-		}
+		}.flowOn(Dispatchers.IO)
 	}
 
-	fun getArticlePagedList(initStart: Int, pageSize: Int, categoryId: Int): LiveData<Resource> {
-		var err: ApiError? = null
-		val liveData = LivePagedListBuilder(object : DataSource.Factory<Int, Article>() {
-			override fun create(): DataSource<Int, Article> {
-				return object : PositionalDataSource<Article>() {
-
-					override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<Article>) {
-						val articleResult = articleRepository.getArticleList(params.requestedStartPosition, params.pageSize, categoryId)
-						err = articleResult.err
-						val pagedList = articleResult.res?.articleData?.articles ?: emptyList()
-						callback.onResult(pagedList, params.requestedStartPosition)
-					}
-
-					override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<Article>) {
-						val articleResult = articleRepository.getArticleList(params.startPosition, params.loadSize, categoryId)
-						err = articleResult.err
-						val pagedList = articleResult.res?.articleData?.articles ?: emptyList()
-						callback.onResult(pagedList)
+	fun getArticlePagedList(initStart: Int, pageSize: Int, categoryId: Int): Flow<PagingData<Article>> {
+		val unknownError = Throwable("unknownError")
+		return Pager(PagingConfig(pageSize, 1, false, pageSize), initStart) {
+			object : PagingSource<Int, Article>() {
+				override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Article> {
+					return withContext(Dispatchers.IO) {
+						val key = params.key ?: initStart
+						val articleResult = articleRepository.getArticleList(key, params.loadSize, categoryId)
+						articleResult.getOrNull()?.let {
+							val pagingDataList = it.data?.articleData?.articles ?: emptyList()
+							val nextKey = if (pagingDataList.size < pageSize) null else key + pageSize
+							return@withContext LoadResult.Page(pagingDataList, null, nextKey)
+						}
+						articleResult.errorOrNull()?.let {
+							return@withContext LoadResult.Error(it.apiError ?: unknownError)
+						}
+						return@withContext LoadResult.Error(unknownError)
 					}
 				}
 			}
-		}, PagedList.Config.Builder().setPageSize(pageSize).setInitialLoadSizeHint(pageSize).setEnablePlaceholders(false)
-			.setPrefetchDistance(1).build()).setInitialLoadKey(initStart).build()
-		return Transformations.switchMap(liveData) {
-			val respSuccess: RespSuccess<PagedList<Article>>? = it.let { if (it.isEmpty() && err != null) null else RespSuccess(it) }
-			val respError: RespError? = err?.let { it1 -> RespError(it1) }
-			return@switchMap articleListLiveData.apply { setResource(respSuccess, respError) }
-		}
+		}.flow
 	}
-
-	fun getArticleDetail(articleId: Int) {
-		viewModelScope.launch(Dispatchers.IO) {
-			val articleDetailResult = articleRepository.getArticleDetail(articleId)
-			withContext(Dispatchers.Main) {
-				articleDetailLiveData.setResource(articleDetailResult.getOrNull(), articleDetailResult.errorOrNull())
-			}
-		}
-	}
-
-	fun getArticleDetail() = articleDetailLiveData
 
 	fun likeArticle(articleId: Int) {
 	}

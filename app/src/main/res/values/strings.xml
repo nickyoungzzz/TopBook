@@ -4,8 +4,7 @@
     <string name="tab_main_bottom_life">生活</string>
     <string name="tab_main_bottom_market">市集</string>
     <string name="tab_main_bottom_plan">计划</string>
-    <string name="title_activity_main2">Main2Activity</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="foot_load_more_loading">正在加载…</string>
+    <string name="foot_load_more_retry">点击重试</string>
+    <string name="foot_load_more_end">这里是底线</string>
 </resources>

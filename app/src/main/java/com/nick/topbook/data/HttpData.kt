@@ -10,7 +10,7 @@ import java.net.UnknownHostException
 
 typealias ApiErrorResult<T> = Result<T, ApiError, ApiError>
 
-data class ApiError(val errCode: Int, val errMsg: String)
+data class ApiError(val errCode: Int, val errMsg: String) : Throwable(errMsg)
 
 inline fun <T> HttpResult.transform2ApiError(crossinline t: (String) -> T) = transform<T, ApiError, ApiError> {
 	success { t(it) }
@@ -24,7 +24,13 @@ val <T> ApiErrorResult<T>.res: T?
 	get() = if (this.isSuccess) this.success else null
 
 val <T> ApiErrorResult<T>.err: ApiError?
-	get() = if (!this.isSuccess) (if (this.isError) this.error else this.exception) else null
+	get() = when {
+		this.isSuccess -> null
+		this.isError -> this.error
+		this.isException -> this.exception
+		else -> null
+	}
+
 
 inline fun <reified T> String.toEntity(): T = Gson().fromJson(this, T::class.java)
 

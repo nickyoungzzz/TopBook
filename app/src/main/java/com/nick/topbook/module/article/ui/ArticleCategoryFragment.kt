@@ -8,13 +8,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayout
 import com.nick.topbook.R
 import com.nick.topbook.base.BaseFragment
-import com.nick.topbook.data.observeResource
+import com.nick.topbook.data.Resource
 import com.nick.topbook.module.article.model.Category
 import com.nick.topbook.module.article.viewmodel.ArticleViewModel
 import kotlinx.android.synthetic.main.fragment_article.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class ArticleCategoryFragment : BaseFragment() {
 
@@ -28,14 +32,19 @@ class ArticleCategoryFragment : BaseFragment() {
 
 	override fun initData(savedInstanceState: Bundle?) {
 		val titleList = arrayListOf<Category>()
-		articleViewModel.getArticleCategory(0, 20).observeResource<List<Category>>(viewLifecycleOwner) {
-			succeed {
-				titleList.clear()
-				titleList.addAll(it)
-				adapter.notifyDataSetChanged()
+		lifecycleScope.launch {
+			articleViewModel.getArticleCategory(0, 20).catch {
+				Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+			}.collectLatest {
+				when (it) {
+					is Resource.RespSuccess -> {
+						titleList.clear()
+						titleList.addAll(it.data?.categoryData?.categories ?: emptyList())
+						adapter.notifyDataSetChanged()
+					}
+					is Resource.RespError -> Toast.makeText(context, it.apiError?.errMsg, Toast.LENGTH_SHORT).show()
+				}
 			}
-			loading(Toast.makeText(this@ArticleCategoryFragment.activity, "loading", Toast.LENGTH_SHORT)::show)
-			lost { Toast.makeText(this@ArticleCategoryFragment.activity, it?.errMsg, Toast.LENGTH_SHORT).show() }
 		}
 		adapter = object : FragmentPagerAdapter(childFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 			override fun getItem(position: Int): Fragment {

@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
@@ -15,7 +15,7 @@ import com.nick.topbook.util.format1
 import com.nick.topbook.util.format2
 import com.nick.topbook.util.parseDateTime2NewFormat
 
-class ArticlePagedAdapter : PagedListAdapter<Article, RecyclerView.ViewHolder>(ArticleDiffItemCallBack()) {
+class ArticlePagedAdapter : PagingDataAdapter<Article, RecyclerView.ViewHolder>(ArticleDiffItemCallBack()) {
 
 	var isScrolling = false
 		set(value) {
@@ -24,7 +24,7 @@ class ArticlePagedAdapter : PagedListAdapter<Article, RecyclerView.ViewHolder>(A
 		}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-		return ArticleViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_atticle_category_fragment, parent, false))
+		return ArticleViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_article_category_fragment, parent, false))
 	}
 
 	override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

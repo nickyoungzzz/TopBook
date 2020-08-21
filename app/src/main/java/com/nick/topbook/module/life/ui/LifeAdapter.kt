@@ -15,7 +15,7 @@ class LifeAdapter(private val dataList: ArrayList<LifeTopic> = arrayListOf()) : 
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-		return LifeViewHolder(View.inflate(parent.context, R.layout.item_atticle_category_fragment, null))
+		return LifeViewHolder(View.inflate(parent.context, R.layout.item_article_category_fragment, null))
 	}
 
 	override fun getItemCount(): Int {
