@@ -1,4 +1,4 @@
-package com.nick.topbook.module.article.ui
+package com.nick.topbook.base
 
 import android.content.Context
 import android.view.LayoutInflater

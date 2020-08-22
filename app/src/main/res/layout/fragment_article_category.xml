@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.nick.topbook.base.RefreshRecyclerView
         android:id="@+id/rv_article"
         android:layout_width="match_parent"
         android:layout_height="0dp"

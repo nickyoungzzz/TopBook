@@ -2,7 +2,6 @@ package com.nick.topbook.module.article.ui
 
 import android.os.Bundle
 import android.view.View
-import android.widget.AbsListView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -10,11 +9,13 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.nick.topbook.R
 import com.nick.topbook.base.BaseFragment
+import com.nick.topbook.base.LoadMoreFooterAdapter
+import com.nick.topbook.base.RefreshHeaderAdapter
 import com.nick.topbook.module.article.viewmodel.ArticleViewModel
 import kotlinx.android.synthetic.main.fragment_article_category.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -25,7 +26,6 @@ class ArticleFragment : BaseFragment() {
 	private val articleAdapter = ArticlePagedAdapter()
 	private val headerAdapter = RefreshHeaderAdapter()
 	private val footerAdapter = LoadMoreFooterAdapter()
-	private var isRefreshing = false
 
 	override fun initView(): View = View.inflate(context, R.layout.fragment_article_category, null)
 
@@ -41,24 +41,16 @@ class ArticleFragment : BaseFragment() {
 	}
 
 	private fun registerListener() {
-		rv_article.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-			override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-				if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-					articleAdapter.isScrolling = false
-					if (!recyclerView.canScrollVertically(-1)) {
-						lifecycleScope.launch {
-							if (!isRefreshing) {
-								isRefreshing = true
-								headerAdapter.notifyItemInserted(0)
-								articleAdapter.refresh()
-							}
-						}
-					} else {
-						articleAdapter.isScrolling = true
-					}
-				}
+		rv_article.observeScrolling {
+			articleAdapter.isScrolling = it
+		}
+		rv_article.observeRefreshing {
+			lifecycleScope.launch {
+				headerAdapter.notifyItemInserted(0)
+				delay(2000)
+				articleAdapter.refresh()
 			}
-		})
+		}
 		footerAdapter.retry {
 			articleAdapter.retry()
 		}
@@ -79,7 +71,7 @@ class ArticleFragment : BaseFragment() {
 			articleViewModel.getArticlePagedList(0, 50, categoryId).collectLatest {
 				articleAdapter.submitData(lifecycle, it)
 				headerAdapter.notifyItemRemoved(0)
-				isRefreshing = false
+				rv_article.iSRefreshing = false
 			}
 		}
 	}
