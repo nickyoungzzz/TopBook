@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayout
 import com.nick.topbook.R
 import com.nick.topbook.base.BaseFragment
-import com.nick.topbook.data.Resource
 import com.nick.topbook.module.article.model.Category
 import com.nick.topbook.module.article.viewmodel.ArticleViewModel
 import kotlinx.android.synthetic.main.fragment_article.*
@@ -36,14 +35,9 @@ class ArticleCategoryFragment : BaseFragment() {
 			articleViewModel.getArticleCategory(0, 20).catch {
 				Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
 			}.collectLatest {
-				when (it) {
-					is Resource.RespSuccess -> {
-						titleList.clear()
-						titleList.addAll(it.data?.categoryData?.categories ?: emptyList())
-						adapter.notifyDataSetChanged()
-					}
-					is Resource.RespError -> Toast.makeText(context, it.apiError?.errMsg, Toast.LENGTH_SHORT).show()
-				}
+				titleList.clear()
+				titleList.addAll(it)
+				adapter.notifyDataSetChanged()
 			}
 		}
 		adapter = object : FragmentPagerAdapter(childFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {

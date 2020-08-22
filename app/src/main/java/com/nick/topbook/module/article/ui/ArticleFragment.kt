@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,38 +22,47 @@ class ArticleFragment : BaseFragment() {
 
 	private val articleViewModel by viewModels<ArticleViewModel>()
 
-	private lateinit var articleAdapter: ArticlePagedAdapter
-
+	private val articleAdapter = ArticlePagedAdapter()
+	private val headerAdapter = RefreshHeaderAdapter()
 	private val footerAdapter = LoadMoreFooterAdapter()
+	private var isRefreshing = false
 
 	override fun initView(): View = View.inflate(context, R.layout.fragment_article_category, null)
 
 	override fun initData(savedInstanceState: Bundle?) {
 		val categoryId = arguments?.getInt("categoryId") ?: 0
-		articleAdapter = ArticlePagedAdapter()
 		rv_article.apply {
 			layoutManager = LinearLayoutManager(context)
 			itemAnimator = DefaultItemAnimator()
-			adapter = articleAdapter.withLoadStateFooter(footerAdapter)
+			adapter = ConcatAdapter(headerAdapter, articleAdapter.withLoadStateFooter(footerAdapter))
 		}
 		registerListener()
 		pullData(categoryId)
 	}
 
 	private fun registerListener() {
-		article_refresh.setOnRefreshListener {
-			articleAdapter.refresh()
-		}
 		rv_article.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 			override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-				articleAdapter.isScrolling = newState != AbsListView.OnScrollListener.SCROLL_STATE_IDLE
+				if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+					articleAdapter.isScrolling = false
+					if (!recyclerView.canScrollVertically(-1)) {
+						lifecycleScope.launch {
+							if (!isRefreshing) {
+								isRefreshing = true
+								headerAdapter.notifyItemInserted(0)
+								articleAdapter.refresh()
+							}
+						}
+					} else {
+						articleAdapter.isScrolling = true
+					}
+				}
 			}
 		})
 		footerAdapter.retry {
 			articleAdapter.retry()
 		}
 		articleAdapter.addLoadStateListener {
-			println(it.toString())
 			val refresh = it.refresh
 			val append = it.append
 			if (refresh is LoadState.Error) {
@@ -67,8 +77,9 @@ class ArticleFragment : BaseFragment() {
 	private fun pullData(categoryId: Int) {
 		lifecycleScope.launch {
 			articleViewModel.getArticlePagedList(0, 50, categoryId).collectLatest {
-				article_refresh.isRefreshing = false
 				articleAdapter.submitData(lifecycle, it)
+				headerAdapter.notifyItemRemoved(0)
+				isRefreshing = false
 			}
 		}
 	}

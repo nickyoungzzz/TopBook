@@ -7,7 +7,6 @@
     android:layout_gravity="center"
     android:layout_marginHorizontal="10dp"
     android:background="@color/design_default_color_background"
-    android:translationZ="30dp"
     app:cardCornerRadius="5dp"
     app:cardPreventCornerOverlap="true"
     app:cardUseCompatPadding="true"

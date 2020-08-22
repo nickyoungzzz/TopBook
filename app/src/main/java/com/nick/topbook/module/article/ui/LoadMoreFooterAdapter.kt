@@ -39,23 +39,23 @@ class LoadMoreFooterAdapter : LoadStateAdapter<RecyclerView.ViewHolder>() {
 			setOnClickListener {
 				mRetry?.invoke()
 			}
-			isEnabled = true
+			isClickable = true
 		}
 		if (endOfPaginationReached) {
 			loadMoreFooterViewHolder.loadMoreText.text = context.getString(R.string.foot_load_more_end)
-			loadMoreFooterViewHolder.loadMoreText.isEnabled = false
+			loadMoreFooterViewHolder.loadMoreText.isClickable = false
 			loadMoreFooterViewHolder.loadMoreProgressBar.visibility = View.GONE
 			return
 		}
 		when (loadState) {
 			is LoadState.Loading -> {
 				loadMoreFooterViewHolder.loadMoreText.text = context.getString(R.string.foot_load_more_loading)
-				loadMoreFooterViewHolder.loadMoreText.isEnabled = false
+				loadMoreFooterViewHolder.loadMoreText.isClickable = false
 				loadMoreFooterViewHolder.loadMoreProgressBar.visibility = View.VISIBLE
 			}
 			is LoadState.Error -> {
 				loadMoreFooterViewHolder.loadMoreText.text = context.getString(R.string.foot_load_more_retry)
-				loadMoreFooterViewHolder.loadMoreText.isEnabled = true
+				loadMoreFooterViewHolder.loadMoreText.isClickable = true
 				loadMoreFooterViewHolder.loadMoreProgressBar.visibility = View.GONE
 			}
 		}

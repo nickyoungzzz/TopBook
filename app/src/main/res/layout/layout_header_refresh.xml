@@ -6,20 +6,20 @@
     android:paddingVertical="6dp">
 
     <ProgressBar
-        android:id="@+id/pb_footer_load_more"
         style="?android:attr/progressBarStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
-        app:layout_constraintBottom_toBottomOf="@id/tv_footer_load_more"
-        app:layout_constraintEnd_toStartOf="@id/tv_footer_load_more"
-        app:layout_constraintTop_toTopOf="@id/tv_footer_load_more" />
+        app:layout_constraintBottom_toBottomOf="@id/tv_header_refresh"
+        app:layout_constraintEnd_toStartOf="@id/tv_header_refresh"
+        app:layout_constraintTop_toTopOf="@id/tv_header_refresh" />
 
     <TextView
-        android:id="@+id/tv_footer_load_more"
+        android:id="@+id/tv_header_refresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:text="@string/foot_load_more_loading"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
