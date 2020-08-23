@@ -35,7 +35,7 @@ class ArticleCategoryFragment : BaseFragment() {
 			articleViewModel.getArticleCategory(0, 20).catch {
 				Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
 			}.collectLatest {
-				titleList.addAll(it.subList(1, it.size))
+				titleList.addAll(it)
 				adapter.notifyDataSetChanged()
 			}
 		}

@@ -9,6 +9,7 @@ import com.nick.topbook.module.article.model.Article
 import com.nick.topbook.module.article.model.ArticleRepository
 import com.nick.topbook.module.article.model.Category
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -38,6 +39,7 @@ class ArticleViewModel : ViewModel() {
 		return Pager(PagingConfig(pageSize, 1, false, pageSize), initStart) {
 			object : PagingSource<Int, Article>() {
 				override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Article> {
+					delay(1000)
 					return withContext(Dispatchers.IO) {
 						val key = params.key
 						val articleResult = articleRepository.getArticleList(key ?: initStart, params.loadSize, categoryId)
