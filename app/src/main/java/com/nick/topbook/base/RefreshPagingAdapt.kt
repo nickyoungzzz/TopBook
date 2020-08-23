@@ -7,15 +7,15 @@ import androidx.recyclerview.widget.RecyclerView
 
 class RefreshPagingAdapt<T : Any, VH : RecyclerView.ViewHolder>(private val pagingDataAdapter: PagingDataAdapter<T, VH>) {
 
-	private lateinit var headerAdapter: RefreshHeaderAdapter
-	private lateinit var footerAdapter: LoadMoreFooterAdapter
-
+	private var headerAdapter: RefreshHeaderAdapter = RefreshHeaderAdapter()
+	private var footerAdapter: LoadMoreFooterAdapter = LoadMoreFooterAdapter()
 	private var isRefreshing = false
 	private var isAppending = false
+	private var mLoadErrorListener: ((Throwable) -> Unit)? = null
 
-	fun registerRetryListener(retry: (Int) -> Unit = {}) {
+	fun registerRetryListener(retry: () -> Unit = {}) {
 		footerAdapter.retry {
-			retry.invoke(pagingDataAdapter.itemCount)
+			retry.invoke()
 			pagingDataAdapter.retry()
 		}
 	}
@@ -25,7 +25,11 @@ class RefreshPagingAdapt<T : Any, VH : RecyclerView.ViewHolder>(private val pagi
 		pagingDataAdapter.refresh()
 	}
 
-	fun addStateListener(loadListener: (Throwable) -> Unit) {
+	fun registerErrorListener(loadErrorListener: ((Throwable) -> Unit)) {
+		mLoadErrorListener = loadErrorListener
+	}
+
+	fun toAdapter(): ConcatAdapter {
 		pagingDataAdapter.addLoadStateListener {
 			val refresh = it.refresh
 			val append = it.append
@@ -37,17 +41,12 @@ class RefreshPagingAdapt<T : Any, VH : RecyclerView.ViewHolder>(private val pagi
 				isRefresh -> headerAdapter.notifyItemInserted(0)
 				isAppend || isAppendEnd -> footerAdapter.endOfPaginationReached = append.endOfPaginationReached
 				isRefreshEnd -> headerAdapter.notifyItemRemoved(0)
-				refresh is LoadState.Error -> loadListener.invoke(refresh.error)
-				append is LoadState.Error -> loadListener.invoke(append.error)
+				refresh is LoadState.Error -> mLoadErrorListener?.invoke(refresh.error)
+				append is LoadState.Error -> mLoadErrorListener?.invoke(append.error)
 			}
 			isRefreshing = isRefresh
 			isAppending = isAppend
 		}
-	}
-
-	fun toAdapter(): ConcatAdapter {
-		headerAdapter = RefreshHeaderAdapter()
-		footerAdapter = LoadMoreFooterAdapter()
 		return ConcatAdapter(headerAdapter, pagingDataAdapter.withLoadStateFooter(footerAdapter))
 	}
 }
