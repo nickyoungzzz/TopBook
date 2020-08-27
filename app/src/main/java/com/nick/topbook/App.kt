@@ -1,12 +1,12 @@
 package com.nick.topbook
 
 import android.app.Application
-import com.nick.easyhttp.config.EasyHttp
+import com.nick.easygo.config.EasyGo
 
 class App : Application() {
 	override fun onCreate() {
 		super.onCreate()
-		EasyHttp.init {
+		EasyGo.initialize {
 			connectTimeOut(3000)
 			readTimeOut(3000)
 			writeTimeOut(3000)

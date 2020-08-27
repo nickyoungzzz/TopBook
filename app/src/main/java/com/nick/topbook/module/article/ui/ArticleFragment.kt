@@ -47,6 +47,7 @@ class ArticleFragment : BaseFragment() {
 		refreshPagingAdapt.registerRetryListener {
 		}
 		refreshPagingAdapt.registerErrorListener {
+			rv_article.iSRefreshing = false
 			Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
 		}
 	}

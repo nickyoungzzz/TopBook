@@ -1,47 +1,47 @@
 package com.nick.topbook.module.article.model
 
 import com.google.gson.JsonParser
-import com.nick.easyhttp.core.httpGet
+import com.nick.easygo.core.httpGet
+import com.nick.easygo.result.httpResult2Any
 import com.nick.topbook.constant.UrlConstant
-import com.nick.topbook.data.ApiErrorResult
-import com.nick.topbook.data.toEntity
-import com.nick.topbook.data.transform2ApiError
+import com.nick.topbook.data.ApiResult
+import com.nick.topbook.data.toApiResult
 
 class ArticleRepository {
 
-	fun getArticleCategory(start: Int, limit: Int): ApiErrorResult<ArticleCategoryResult> {
-		return httpGet {
-			url(UrlConstant.ARTICLE_CATEGORY_ALL)
-			query {
-				"start" with "$start"
-				"limit" with "$limit"
-			}
-		}.launch().transform2ApiError(String::toEntity)
-	}
+    fun getArticleCategory(start: Int, limit: Int): ApiResult<ArticleCategoryResult?> {
+        return httpGet {
+            url(UrlConstant.ARTICLE_CATEGORY_ALL)
+            query {
+                "start" with "$start"
+                "limit" with "$limit"
+            }
+        }.send().toApiResult { it.httpResult2Any() }
+    }
 
-	fun getArticleList(start: Int, limit: Int, categoryId: Int): ApiErrorResult<ArticleResult> {
-		return httpGet {
-			url(UrlConstant.ARTICLE_CATEGORY_LIST.format(categoryId))
-			query {
-				"start" with "$start"
-				"limit" with "$limit"
-			}
-		}.launch().transform2ApiError(String::toEntity)
-	}
+    fun getArticleList(start: Int, limit: Int, categoryId: Int): ApiResult<ArticleResult?> {
+        return httpGet {
+            url(UrlConstant.ARTICLE_CATEGORY_LIST.format(categoryId))
+            query {
+                "start" with "$start"
+                "limit" with "$limit"
+            }
+        }.send().toApiResult { it.httpResult2Any() }
+    }
 
-	fun getArticleDetail(articleId: Int): ApiErrorResult<ArticleDetailResult> {
-		return httpGet {
-			url(UrlConstant.ARTICLE_DETAIL.format(articleId))
-		}.launch().transform2ApiError(String::toEntity)
-	}
+    fun getArticleDetail(articleId: Int): ApiResult<ArticleDetailResult?> {
+        return httpGet {
+            url(UrlConstant.ARTICLE_DETAIL.format(articleId))
+        }.send().toApiResult { it.httpResult2Any() }
+    }
 
-	fun likeArticle(likeId: Int): ApiErrorResult<Boolean> {
-		return httpGet {
-			url(UrlConstant.ARTICLE_LIKE)
-			query {
-				"like_id" with "$likeId"
-				"id_type" with ""
-			}
-		}.launch().transform2ApiError { JsonParser.parseString(it).asJsonObject.get("success").asBoolean }
-	}
+    fun likeArticle(likeId: Int): ApiResult<Boolean> {
+        return httpGet {
+            url(UrlConstant.ARTICLE_LIKE)
+            query {
+                "like_id" with "$likeId"
+                "id_type" with ""
+            }
+        }.send().toApiResult { JsonParser.parseString(it).asJsonObject.get("success").asBoolean }
+    }
 }

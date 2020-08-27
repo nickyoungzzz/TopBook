@@ -41,8 +41,11 @@ class RefreshPagingAdapt<T : Any, VH : RecyclerView.ViewHolder>(private val pagi
 				isRefresh -> headerAdapter.notifyItemInserted(0)
 				isAppend || isAppendEnd -> footerAdapter.endOfPaginationReached = append.endOfPaginationReached
 				isRefreshEnd -> headerAdapter.notifyItemRemoved(0)
-				refresh is LoadState.Error -> mLoadErrorListener?.invoke(refresh.error)
 				append is LoadState.Error -> mLoadErrorListener?.invoke(append.error)
+				refresh is LoadState.Error -> {
+					headerAdapter.notifyItemRemoved(0)
+					mLoadErrorListener?.invoke(refresh.error)
+				}
 			}
 			isRefreshing = isRefresh
 			isAppending = isAppend
