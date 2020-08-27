@@ -22,6 +22,7 @@ class ArticleViewModel : ViewModel() {
     fun getArticleCategory(start: Int, limit: Int): Flow<Resource<List<Category>>> {
         return flow {
             withContext(Dispatchers.IO) {
+                emit(Resource.RespLoading)
                 val apiResult = articleRepository.getArticleCategory(start, limit)
 //                apiResult.res?.let {
 //                    val categoryList = it.categoryData.categories
@@ -35,7 +36,7 @@ class ArticleViewModel : ViewModel() {
                     emit(Resource.RespSuccess(categoryList))
                 }
                 apiResult.errorOrNull()?.let {
-                    emit(Resource.RespError<List<Category>>(it.apiError))
+                    emit(Resource.RespError(it.apiError))
                 }
             }
         }.flowOn(Dispatchers.IO)

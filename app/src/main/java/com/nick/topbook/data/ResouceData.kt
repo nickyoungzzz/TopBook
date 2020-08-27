@@ -1,7 +1,7 @@
 package com.nick.topbook.data
 
-sealed class Resource<T : Any> {
-	data class RespSuccess<T : Any>(val data: T?) : Resource<T>()
-	data class RespError<T : Any>(val apiError: ApiError?) : Resource<T>()
-	object RespLoading : Resource<Any>()
+sealed class Resource<out T> {
+	data class RespSuccess<T>(val data: T?) : Resource<T>()
+	data class RespError(val apiError: ApiError?) : Resource<Nothing>()
+	object RespLoading : Resource<Nothing>()
 }
