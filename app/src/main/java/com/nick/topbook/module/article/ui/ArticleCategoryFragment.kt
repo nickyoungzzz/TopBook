@@ -39,7 +39,8 @@ class ArticleCategoryFragment : BaseFragment() {
 						adapter.notifyDataSetChanged()
 					}
 					is Resource.RespError -> Toast.makeText(context, it.apiError?.errMsg, Toast.LENGTH_SHORT).show()
-					is Resource.RespLoading -> {}
+					is Resource.RespLoading -> {
+					}
 				}
 			}
 		}

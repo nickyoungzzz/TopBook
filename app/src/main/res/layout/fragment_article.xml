@@ -9,12 +9,13 @@
         android:id="@+id/tl_article"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/design_default_color_background"
+        android:background="@color/colorPrimaryDark"
         app:layout_constraintTop_toTopOf="parent"
         app:tabGravity="center"
         app:tabIndicator="@null"
         app:tabMode="auto"
-        app:tabSelectedTextColor="@color/colorPrimaryDark" />
+        app:tabTextColor="@color/design_default_color_background"
+        app:tabSelectedTextColor="@color/colorAccent" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/vp_article"

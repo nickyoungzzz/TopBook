@@ -13,26 +13,26 @@ typealias ApiResult<T> = HttpResult<T, ApiError>
 data class ApiError(val errCode: Int, val errMsg: String) : Throwable(errMsg)
 
 inline fun <T> HttpRawResult.toApiResult(crossinline t: (String?) -> T) =
-    mapResult<T, ApiError> {
-        result {
-            t.invoke(it)
-        }
-        error {
-            it.toApiError()
-        }
-    }
+	mapResult<T, ApiError> {
+		result {
+			t.invoke(it)
+		}
+		error {
+			it.toApiError()
+		}
+	}
 
 val <T> ApiResult<T>.res: T?
-    get() = this.result
+	get() = this.result
 
 val <T> ApiResult<T>.err: ApiError?
-    get() = this.error
+	get() = this.error
 
 private val unknownError = ApiError(0, "unknown error")
 
 fun Throwable?.toApiError(): ApiError? = when (this) {
-    is HttpError -> this.error.httpResult2Any<ApiError>()
-    is SocketTimeoutException -> ApiError(111, "请求已超时！")
-    is ConnectException, is UnknownHostException -> ApiError(111, "网络连接失败！")
-    else -> null
+	is HttpError -> this.error.httpResult2Any<ApiError>()
+	is SocketTimeoutException -> ApiError(111, "请求已超时！")
+	is ConnectException, is UnknownHostException -> ApiError(111, "网络连接失败！")
+	else -> null
 }
