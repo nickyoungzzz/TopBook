@@ -2,7 +2,7 @@ package com.nick.topbook.module.article.model
 
 import com.google.gson.JsonParser
 import com.nick.easygo.core.httpGet
-import com.nick.easygo.result.httpResult2Any
+import com.nick.easygo.util.toAny
 import com.nick.topbook.constant.UrlConstant
 import com.nick.topbook.data.ApiResult
 import com.nick.topbook.data.toApiResult
@@ -15,7 +15,7 @@ class ArticleRepository {
 			query {
 				"start" with "$start"; "limit" with "$limit"
 			}
-		}.send().toApiResult { it.httpResult2Any() }
+		}.send().toApiResult { it.toAny() }
 
 	fun getArticleList(start: Int, limit: Int, categoryId: Int): ApiResult<ArticleResult?> {
 		return httpGet {
@@ -24,13 +24,13 @@ class ArticleRepository {
 				"start" with "$start"
 				"limit" with "$limit"
 			}
-		}.send().toApiResult { it.httpResult2Any() }
+		}.send().toApiResult { it.toAny() }
 	}
 
 	fun getArticleDetail(articleId: Int): ApiResult<ArticleDetailResult?> {
 		return httpGet {
 			url(UrlConstant.ARTICLE_DETAIL.format(articleId))
-		}.send().toApiResult { it.httpResult2Any() }
+		}.send().toApiResult { it.toAny() }
 	}
 
 	fun likeArticle(likeId: Int): ApiResult<Boolean> =

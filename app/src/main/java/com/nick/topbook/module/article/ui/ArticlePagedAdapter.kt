@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
+import coil.load
 import com.nick.topbook.R
 import com.nick.topbook.module.article.model.Article
 import com.nick.topbook.util.format1

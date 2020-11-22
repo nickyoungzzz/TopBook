@@ -10,8 +10,11 @@ class App : Application() {
 			connectTimeOut(3000)
 			readTimeOut(3000)
 			writeTimeOut(3000)
-			interceptor { chain ->
-				chain.proceed(chain.request()).apply {
+			addInterceptor { chain ->
+				chain.proceed(chain.request().apply {
+					println(this.headerMap)
+				}).apply {
+					println(this.code)
 				}
 			}
 		}

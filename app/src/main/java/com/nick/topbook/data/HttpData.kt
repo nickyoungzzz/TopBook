@@ -3,7 +3,7 @@ package com.nick.topbook.data
 import com.nick.easygo.result.HttpError
 import com.nick.easygo.result.HttpRawResult
 import com.nick.easygo.result.HttpResult
-import com.nick.easygo.result.httpResult2Any
+import com.nick.easygo.util.toAny
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -31,7 +31,7 @@ val <T> ApiResult<T>.err: ApiError?
 private val unknownError = ApiError(0, "unknown error")
 
 fun Throwable?.toApiError(): ApiError? = when (this) {
-	is HttpError -> this.error.httpResult2Any<ApiError>()
+	is HttpError -> this.error.toAny<ApiError>()
 	is SocketTimeoutException -> ApiError(111, "请求已超时！")
 	is ConnectException, is UnknownHostException -> ApiError(111, "网络连接失败！")
 	else -> null
