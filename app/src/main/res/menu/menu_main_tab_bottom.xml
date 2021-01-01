@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@id/tab_main_bottom_article"
+        android:id="@+id/tab_main_bottom_article"
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/tab_main_bottom_article" />
     <item
-        android:id="@id/tab_main_bottom_life"
+        android:id="@+id/tab_main_bottom_life"
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/tab_main_bottom_life" />
     <item
-        android:id="@id/tab_main_bottom_market"
+        android:id="@+id/tab_main_bottom_market"
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/tab_main_bottom_market" />
     <item
-        android:id="@id/tab_main_bottom_plan"
+        android:id="@+id/tab_main_bottom_plan"
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/tab_main_bottom_plan" />
 </menu>

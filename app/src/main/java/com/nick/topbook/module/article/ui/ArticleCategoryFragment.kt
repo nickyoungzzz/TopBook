@@ -6,10 +6,10 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.tabs.TabLayout
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.tabs.TabLayoutMediator
 import com.nick.topbook.R
 import com.nick.topbook.base.BaseFragment
 import com.nick.topbook.data.Resource
@@ -23,7 +23,7 @@ class ArticleCategoryFragment : BaseFragment() {
 
 	private val articleViewModel by viewModels<ArticleViewModel>()
 
-	private lateinit var adapter: FragmentPagerAdapter
+	private lateinit var adapter: FragmentStateAdapter
 
 	override fun initView(): View {
 		return View.inflate(this.context, R.layout.fragment_article, null)
@@ -44,25 +44,22 @@ class ArticleCategoryFragment : BaseFragment() {
 				}
 			}
 		}
-		adapter = object : FragmentPagerAdapter(childFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-			override fun getItem(position: Int): Fragment {
+		adapter = object : FragmentStateAdapter(childFragmentManager, lifecycle) {
+			override fun getItemCount(): Int {
+				return titleList.size
+			}
+
+			override fun createFragment(position: Int): Fragment {
 				return childFragmentManager.apply { fragmentFactory = FragmentFactory() }.fragmentFactory
 					.instantiate(javaClass.classLoader!!, ArticleFragment::class.qualifiedName!!)
 					.apply { arguments = bundleOf("categoryId" to titleList[position].categoryId) }
 			}
-
-			override fun getCount(): Int {
-				return titleList.size
-			}
-
-			override fun getPageTitle(position: Int): CharSequence? {
-				return titleList[position].name
-			}
 		}
 		vp_article.adapter = adapter
 		vp_article.offscreenPageLimit = 10
-		vp_article.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tl_article))
-		tl_article.setupWithViewPager(vp_article)
+		TabLayoutMediator(tl_article, vp_article) { tab, position ->
+			tab.text = titleList[position].name
+		}.attach()
 	}
 
 }

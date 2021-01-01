@@ -9,9 +9,7 @@ import com.nick.topbook.module.article.model.ArticleRepository
 import com.nick.topbook.module.article.model.Category
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 
 class ArticleViewModel : ViewModel() {
@@ -21,23 +19,15 @@ class ArticleViewModel : ViewModel() {
 
 	fun getArticleCategory(start: Int, limit: Int): Flow<Resource<List<Category>>> {
 		return flow {
-			withContext(Dispatchers.IO) {
-				emit(Resource.RespLoading)
-				val apiResult = articleRepository.getArticleCategory(start, limit)
-//                apiResult.res?.let {
-//                    val categoryList = it.categoryData.categories
-//                    emit(categoryList)
-//                }
-//                apiResult.err?.let {
-//                    throw it
-//                }
-				apiResult.getOrNull()?.let {
-					val categoryList = it.data?.categoryData?.categories
-					emit(Resource.RespSuccess(categoryList))
-				}
-				apiResult.errorOrNull()?.let {
-					emit(Resource.RespError(it.apiError))
-				}
+			println(Thread.currentThread().name)
+			emit(Resource.RespLoading)
+			val apiResult = articleRepository.getArticleCategory(start, limit)
+			apiResult.getOrNull()?.let {
+				val categoryList = it.data?.categoryData?.categories
+				emit(Resource.RespSuccess(categoryList))
+			}
+			apiResult.errorOrNull()?.let {
+				emit(Resource.RespError(it.apiError))
 			}
 		}.flowOn(Dispatchers.IO)
 	}
@@ -45,7 +35,7 @@ class ArticleViewModel : ViewModel() {
 	fun getArticlePagedList(
 		initStart: Int,
 		pageSize: Int,
-		categoryId: Int
+		categoryId: Int,
 	): Flow<PagingData<Article>> {
 		return Pager(PagingConfig(pageSize, 1, false, pageSize), initStart) {
 			object : PagingSource<Int, Article>() {
@@ -71,7 +61,7 @@ class ArticleViewModel : ViewModel() {
 					}
 				}
 			}
-		}.flow.cachedIn(viewModelScope)
+		}.flow.cachedIn(viewModelScope).flowOn(Dispatchers.Main)
 	}
 
 	fun likeArticle(articleId: Int) {

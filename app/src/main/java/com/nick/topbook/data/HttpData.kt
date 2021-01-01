@@ -1,38 +1,32 @@
 package com.nick.topbook.data
 
 import com.nick.easygo.result.HttpError
-import com.nick.easygo.result.HttpRawResult
 import com.nick.easygo.result.HttpResult
-import com.nick.easygo.util.toAny
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
-typealias ApiResult<T> = HttpResult<T, ApiError>
+typealias ApiResult<T> = AppResult<T, AppError>
 
-data class ApiError(val errCode: Int, val errMsg: String) : Throwable(errMsg)
-
-inline fun <T> HttpRawResult.toApiResult(crossinline t: (String?) -> T) =
-	mapResult<T, ApiError> {
-		result {
-			t.invoke(it)
-		}
-		error {
-			it.toApiError()
-		}
-	}
+data class AppError(val errCode: Int, val errMsg: String) : Throwable(errMsg)
 
 val <T> ApiResult<T>.res: T?
-	get() = this.result
+	get() = this.t
 
-val <T> ApiResult<T>.err: ApiError?
-	get() = this.error
+val <T> ApiResult<T>.err: AppError?
+	get() = this.f
 
-private val unknownError = ApiError(0, "unknown error")
+private val unknownError = AppError(0, "unknown error")
 
-fun Throwable?.toApiError(): ApiError? = when (this) {
-	is HttpError -> this.error.toAny<ApiError>()
-	is SocketTimeoutException -> ApiError(111, "请求已超时！")
-	is ConnectException, is UnknownHostException -> ApiError(111, "网络连接失败！")
+fun Throwable?.toAppError(): AppError? = when (this) {
+	is HttpError -> AppError(0, "")
+	is SocketTimeoutException -> AppError(111, "请求已超时！")
+	is ConnectException, is UnknownHostException -> AppError(111, "网络连接失败！")
 	else -> null
+}
+
+data class AppResult<T, F>(val code: Int, val headers: Map<String, List<String>>, val url: String, val t: T?, val f: F?)
+
+fun <T> HttpResult<T>.toApiResult(): ApiResult<T> {
+	return ApiResult(code, headers, url, res, error.toAppError())
 }
